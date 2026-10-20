@@ -46,5 +46,8 @@ export function useClock(bpm: number, countIn: number, totalBeats: number) {
     setBeat(Math.floor(clock.beat()));
   }, [clock]);
 
-  return { beat, playing, toggle, restart };
+  // Fractional beat for animations that read it every frame.
+  const getBeat = useCallback(() => clock.beat(), [clock]);
+
+  return { beat, playing, toggle, restart, getBeat };
 }

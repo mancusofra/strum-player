@@ -3,10 +3,12 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { ChordDiagram } from '@/components/ChordDiagram';
 import { NotationToggle } from '@/components/NotationToggle';
+import { StrumLane } from '@/components/StrumLane';
 import { chordLongName, chordSymbol, type Notation } from '@/music/notation';
 import { useClock } from '@/player/useClock';
 import { EXAMPLE_SONG } from '@/song/examples';
 import { parseSong } from '@/song/parse';
+import { strumEvents } from '@/song/strums';
 import { buildTimeline, positionAt } from '@/song/timeline';
 import { colors } from '@/theme';
 
@@ -16,9 +18,14 @@ const MAX_BPM = 200;
 export default function Player() {
   const song = useMemo(() => parseSong(EXAMPLE_SONG), []);
   const timeline = useMemo(() => buildTimeline(song), [song]);
+  const strums = useMemo(() => strumEvents(song), [song]);
   const [notation, setNotation] = useState<Notation>('letters');
   const [bpm, setBpm] = useState(song.bpm);
-  const { beat, playing, toggle, restart } = useClock(bpm, song.beatsPerBar, timeline.totalBeats);
+  const { beat, playing, toggle, restart, getBeat } = useClock(
+    bpm,
+    song.beatsPerBar,
+    timeline.totalBeats,
+  );
 
   const countingIn = beat < 0;
   const pos = positionAt(timeline, beat);
@@ -41,11 +48,20 @@ export default function Player() {
       <View style={styles.stage}>
         <Text style={styles.symbol}>{chordSymbol(current, notation)}</Text>
         <Text style={styles.longName}>{chordLongName(current, notation) || ' '}</Text>
-        <ChordDiagram chord={current} width={180} />
+        <ChordDiagram chord={current} width={150} />
         <Text style={styles.next}>
           {next ? `Next: ${chordSymbol(next, notation)}` : 'Last chord'}
         </Text>
       </View>
+
+      <StrumLane
+        events={strums}
+        timeline={timeline}
+        notation={notation}
+        beat={beat}
+        getBeat={getBeat}
+        playing={playing}
+      />
 
       <View style={styles.beats} accessibilityLabel={`Beat ${pos.beatInBar + 1}`}>
         {Array.from({ length: song.beatsPerBar }, (_, i) => (
@@ -98,7 +114,7 @@ const styles = StyleSheet.create({
   title: { color: colors.text, fontSize: 18, fontWeight: '700' },
   meta: { color: colors.muted, fontSize: 14, marginTop: 2 },
   stage: { alignItems: 'center' },
-  symbol: { color: colors.text, fontSize: 56, fontWeight: '800' },
+  symbol: { color: colors.text, fontSize: 48, fontWeight: '800' },
   longName: { color: colors.muted, fontSize: 16, marginBottom: 8 },
   next: { color: colors.muted, fontSize: 16, marginTop: 8 },
   beats: { flexDirection: 'row', gap: 14 },
