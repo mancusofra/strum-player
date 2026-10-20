@@ -1,0 +1,38 @@
+name: Bug report
+description: Something doesn't work as it should
+labels: [bug]
+body:
+  - type: textarea
+    id: what
+    attributes:
+      label: What happens
+      description: Describe the problem and what you expected instead.
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Open …
+        2. Tap …
+        3. See …
+    validations:
+      required: true
+  - type: input
+    id: platform
+    attributes:
+      label: Platform and device
+      placeholder: e.g. iPhone 15, iOS 26.1 · Pixel 8, Android 16 · Firefox on Linux
+    validations:
+      required: true
+  - type: textarea
+    id: song
+    attributes:
+      label: Song file
+      description: If the problem is with a song file, paste it here.
+      render: text
+  - type: textarea
+    id: extra
+    attributes:
+      label: Screenshots or anything else
