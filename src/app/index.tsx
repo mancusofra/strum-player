@@ -9,7 +9,8 @@ export default function Home() {
       <Text style={styles.title}>Strum Player</Text>
       <Text style={styles.subtitle}>Play along with chords and strumming</Text>
       <Link href="/player" asChild>
-        <Pressable style={({ pressed }) => [styles.button, pressed && styles.pressed]}>
+        {/* Link's Slot drops function styles on web, so keep this one static. */}
+        <Pressable style={styles.button}>
           <Text style={styles.buttonText}>Open player</Text>
         </Pressable>
       </Link>
@@ -28,6 +29,5 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     backgroundColor: colors.accent,
   },
-  pressed: { opacity: 0.8 },
   buttonText: { color: colors.background, fontSize: 16, fontWeight: '700' },
 });
