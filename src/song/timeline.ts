@@ -44,3 +44,15 @@ export function positionAt(timeline: Timeline, beat: number): Position {
     chordIndex,
   };
 }
+
+/** The next `count` chord changes after `index`; repeats of a chord are skipped. */
+export function upcomingChords(timeline: Timeline, index: number, count: number): string[] {
+  const out: string[] = [];
+  let last = timeline.chords[index]?.chord;
+  for (let i = index + 1; i < timeline.chords.length && out.length < count; i++) {
+    const { chord } = timeline.chords[i];
+    if (chord !== last) out.push(chord);
+    last = chord;
+  }
+  return out;
+}

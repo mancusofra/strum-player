@@ -1,15 +1,15 @@
 import { useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import { ChordDiagram } from '@/components/ChordDiagram';
+import { ChordCarousel } from '@/components/ChordCarousel';
 import { NotationToggle } from '@/components/NotationToggle';
 import { StrumLane } from '@/components/StrumLane';
-import { chordLongName, chordSymbol, type Notation } from '@/music/notation';
+import type { Notation } from '@/music/notation';
 import { useClock } from '@/player/useClock';
 import { EXAMPLE_SONG } from '@/song/examples';
 import { parseSong } from '@/song/parse';
 import { strumEvents } from '@/song/strums';
-import { buildTimeline, positionAt } from '@/song/timeline';
+import { buildTimeline, positionAt, upcomingChords } from '@/song/timeline';
 import { colors } from '@/theme';
 
 const MIN_BPM = 40;
@@ -30,7 +30,6 @@ export default function Player() {
   const countingIn = beat < 0;
   const pos = positionAt(timeline, beat);
   const current = timeline.chords[pos.chordIndex].chord;
-  const next = timeline.chords[pos.chordIndex + 1]?.chord;
   const changeBpm = (delta: number) =>
     setBpm((b) => Math.min(MAX_BPM, Math.max(MIN_BPM, b + delta)));
 
@@ -45,14 +44,11 @@ export default function Player() {
         </Text>
       </View>
 
-      <View style={styles.stage}>
-        <Text style={styles.symbol}>{chordSymbol(current, notation)}</Text>
-        <Text style={styles.longName}>{chordLongName(current, notation) || ' '}</Text>
-        <ChordDiagram chord={current} width={150} />
-        <Text style={styles.next}>
-          {next ? `Next: ${chordSymbol(next, notation)}` : 'Last chord'}
-        </Text>
-      </View>
+      <ChordCarousel
+        current={current}
+        upcoming={upcomingChords(timeline, pos.chordIndex, 2)}
+        notation={notation}
+      />
 
       <StrumLane
         events={strums}
@@ -113,10 +109,6 @@ const styles = StyleSheet.create({
   header: { alignItems: 'center' },
   title: { color: colors.text, fontSize: 18, fontWeight: '700' },
   meta: { color: colors.muted, fontSize: 14, marginTop: 2 },
-  stage: { alignItems: 'center' },
-  symbol: { color: colors.text, fontSize: 48, fontWeight: '800' },
-  longName: { color: colors.muted, fontSize: 16, marginBottom: 8 },
-  next: { color: colors.muted, fontSize: 16, marginTop: 8 },
   beats: { flexDirection: 'row', gap: 14 },
   beatDot: { width: 16, height: 16, borderRadius: 8, backgroundColor: colors.surface },
   downbeat: { borderWidth: 2, borderColor: colors.muted },

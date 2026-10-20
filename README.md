@@ -49,7 +49,7 @@ npm test
 docs/             song format spec
 src/
 ├── app/          screens (Expo Router: one file per route)
-├── components/   UI pieces (chord diagram, notation toggle, strumming lane)
+├── components/   UI pieces (chord diagram and carousel, notation toggle, strumming lane)
 ├── music/        chord shapes, diagram layout, note naming (letters / solfège)
 ├── player/       beat clock (play/pause, tempo, count-in)
 ├── song/         song file types, parser, timeline, strum events, example song
