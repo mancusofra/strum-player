@@ -49,7 +49,8 @@ npm test
 docs/             song format spec
 src/
 ├── app/          screens (Expo Router: one file per route)
-├── music/        chord shapes and note naming (letters / solfège)
+├── components/   UI pieces (chord diagram)
+├── music/        chord shapes, diagram layout, note naming (letters / solfège)
 ├── song/         song file types and parser
 └── theme.ts      shared colors
 ```
