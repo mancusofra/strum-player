@@ -10,7 +10,8 @@
 
 ## Planned features
 
-- **Song files**: a plain-text format with chords, strumming pattern and tempo.
+- **Song files**: a plain-text format with chords, strumming pattern and tempo
+  ([spec](docs/song-format.md)).
 - **Strumming lane**: down/up arrows scrolling in time with the beat.
 - **Chord names** as letters (`G`, `Am`) or solfège (`Sol`, `La minore`).
 - **Chord diagrams** showing where to put your fingers.
@@ -39,14 +40,17 @@ The same checks run in CI:
 ```bash
 npm run lint
 npm run typecheck
+npm test
 ```
 
 ## Project structure
 
 ```
 App.tsx           app entry screen
+docs/             song format spec
 src/
-└── music/        chord shapes and note naming (letters / solfège)
+├── music/        chord shapes and note naming (letters / solfège)
+└── song/         song file types and parser
 ```
 
 ## Contributing
