@@ -1,29 +1,38 @@
 import { useMemo, useState } from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
-import { ChordDiagram } from '@/components/ChordDiagram';
+import { ChordCarousel } from '@/components/ChordCarousel';
 import { NotationToggle } from '@/components/NotationToggle';
-import { chordLongName, chordSymbol, type Notation } from '@/music/notation';
+import { StrumLane } from '@/components/StrumLane';
+import type { Notation } from '@/music/notation';
 import { useClock } from '@/player/useClock';
 import { EXAMPLE_SONG } from '@/song/examples';
 import { parseSong } from '@/song/parse';
-import { buildTimeline, positionAt } from '@/song/timeline';
+import { strumEvents } from '@/song/strums';
+import { buildTimeline, changeIndexAt, chordChanges, positionAt } from '@/song/timeline';
 import { colors } from '@/theme';
 
 const MIN_BPM = 40;
 const MAX_BPM = 200;
+// The carousel moves to the next chord this many beats before it is played,
+// leaving time to change the fingering.
+const CHANGE_LEAD_BEATS = 1;
 
 export default function Player() {
   const song = useMemo(() => parseSong(EXAMPLE_SONG), []);
   const timeline = useMemo(() => buildTimeline(song), [song]);
+  const strums = useMemo(() => strumEvents(song), [song]);
+  const changes = useMemo(() => chordChanges(timeline), [timeline]);
   const [notation, setNotation] = useState<Notation>('letters');
   const [bpm, setBpm] = useState(song.bpm);
-  const { beat, playing, toggle, restart } = useClock(bpm, song.beatsPerBar, timeline.totalBeats);
+  const { beat, playing, toggle, restart, getBeat } = useClock(
+    bpm,
+    song.beatsPerBar,
+    timeline.totalBeats,
+  );
 
   const countingIn = beat < 0;
   const pos = positionAt(timeline, beat);
-  const current = timeline.chords[pos.chordIndex].chord;
-  const next = timeline.chords[pos.chordIndex + 1]?.chord;
   const changeBpm = (delta: number) =>
     setBpm((b) => Math.min(MAX_BPM, Math.max(MIN_BPM, b + delta)));
 
@@ -38,14 +47,21 @@ export default function Player() {
         </Text>
       </View>
 
-      <View style={styles.stage}>
-        <Text style={styles.symbol}>{chordSymbol(current, notation)}</Text>
-        <Text style={styles.longName}>{chordLongName(current, notation) || ' '}</Text>
-        <ChordDiagram chord={current} width={180} />
-        <Text style={styles.next}>
-          {next ? `Next: ${chordSymbol(next, notation)}` : 'Last chord'}
-        </Text>
-      </View>
+      <ChordCarousel
+        changes={changes}
+        index={changeIndexAt(changes, beat + CHANGE_LEAD_BEATS)}
+        notation={notation}
+        style={styles.carousel}
+      />
+
+      <StrumLane
+        events={strums}
+        timeline={timeline}
+        notation={notation}
+        beat={beat}
+        getBeat={getBeat}
+        playing={playing}
+      />
 
       <View style={styles.beats} accessibilityLabel={`Beat ${pos.beatInBar + 1}`}>
         {Array.from({ length: song.beatsPerBar }, (_, i) => (
@@ -95,12 +111,10 @@ export default function Player() {
 const styles = StyleSheet.create({
   content: { padding: 16, gap: 16, alignItems: 'center' },
   header: { alignItems: 'center' },
+  // full width, past the screen padding, so the next chords fit
+  carousel: { alignSelf: 'stretch', marginHorizontal: -16 },
   title: { color: colors.text, fontSize: 18, fontWeight: '700' },
   meta: { color: colors.muted, fontSize: 14, marginTop: 2 },
-  stage: { alignItems: 'center' },
-  symbol: { color: colors.text, fontSize: 56, fontWeight: '800' },
-  longName: { color: colors.muted, fontSize: 16, marginBottom: 8 },
-  next: { color: colors.muted, fontSize: 16, marginTop: 8 },
   beats: { flexDirection: 'row', gap: 14 },
   beatDot: { width: 16, height: 16, borderRadius: 8, backgroundColor: colors.surface },
   downbeat: { borderWidth: 2, borderColor: colors.muted },

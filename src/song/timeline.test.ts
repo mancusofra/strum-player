@@ -1,6 +1,6 @@
 import { EXAMPLE_SONG } from './examples';
 import { parseSong } from './parse';
-import { buildTimeline, positionAt } from './timeline';
+import { buildTimeline, changeIndexAt, chordChanges, positionAt } from './timeline';
 
 const timeline = buildTimeline(parseSong('| G | D Em | C |'));
 
@@ -37,5 +37,25 @@ describe('EXAMPLE_SONG', () => {
   it('parses into a playable timeline', () => {
     const t = buildTimeline(parseSong(EXAMPLE_SONG));
     expect(t.totalBeats).toBe(32);
+  });
+});
+
+describe('chordChanges', () => {
+  const changes = chordChanges(buildTimeline(parseSong('| G | % | D Em | C | C |')));
+
+  it('merges repeated chords', () => {
+    expect(changes.map((c) => [c.chord, c.start, c.beats])).toEqual([
+      ['G', 0, 8],
+      ['D', 8, 2],
+      ['Em', 10, 2],
+      ['C', 12, 8],
+    ]);
+  });
+
+  it('finds the change sounding on a beat', () => {
+    expect(changeIndexAt(changes, -2)).toBe(0);
+    expect(changeIndexAt(changes, 7.9)).toBe(0);
+    expect(changeIndexAt(changes, 10)).toBe(2);
+    expect(changeIndexAt(changes, 19)).toBe(3);
   });
 });
