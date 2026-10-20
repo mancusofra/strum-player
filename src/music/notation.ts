@@ -42,11 +42,14 @@ export function chordSymbol(chord: string, notation: Notation): string {
   return noteName(p.letter + p.acc, notation) + p.suffix + bass;
 }
 
-/** Long name: "Am" -> "A minor" or "La minore". */
+const OVER = { letters: 'over', solfege: 'con basso' };
+
+/** Long name: "Am" -> "A minor" or "La minore"; "G/B" -> "G major over B". */
 export function chordLongName(chord: string, notation: Notation): string {
   const p = split(chord);
   if (!p) return '';
   const q = QUALITY[p.suffix];
   const root = noteName(p.letter + p.acc, notation);
-  return q ? `${root} ${q[notation]}` : `${root} ${p.suffix}`;
+  const name = q ? `${root} ${q[notation]}` : `${root} ${p.suffix}`;
+  return p.bass ? `${name} ${OVER[notation]} ${noteName(p.bass, notation)}` : name;
 }
