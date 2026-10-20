@@ -14,6 +14,9 @@ import { colors } from '@/theme';
 
 const MIN_BPM = 40;
 const MAX_BPM = 200;
+// The carousel moves to the next chord this many beats before it is played,
+// leaving time to change the fingering.
+const CHANGE_LEAD_BEATS = 1;
 
 export default function Player() {
   const song = useMemo(() => parseSong(EXAMPLE_SONG), []);
@@ -46,7 +49,7 @@ export default function Player() {
 
       <ChordCarousel
         changes={changes}
-        index={changeIndexAt(changes, beat)}
+        index={changeIndexAt(changes, beat + CHANGE_LEAD_BEATS)}
         notation={notation}
         style={styles.carousel}
       />
