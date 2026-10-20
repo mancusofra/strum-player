@@ -20,7 +20,7 @@
 
 ## Tech stack
 
-[Expo](https://expo.dev) SDK 58 (React Native) with TypeScript · `react-native-web` ·
+[Expo](https://expo.dev) SDK 58 (React Native) with TypeScript · Expo Router · `react-native-web` ·
 `react-native-svg`.
 
 ## Running it locally
@@ -46,11 +46,12 @@ npm test
 ## Project structure
 
 ```
-App.tsx           app entry screen
 docs/             song format spec
 src/
+├── app/          screens (Expo Router: one file per route)
 ├── music/        chord shapes and note naming (letters / solfège)
-└── song/         song file types and parser
+├── song/         song file types and parser
+└── theme.ts      shared colors
 ```
 
 ## Contributing
