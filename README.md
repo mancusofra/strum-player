@@ -5,18 +5,35 @@
   in time, with chord names (C D E or Do Re Mi) and finger positions on the fretboard.
 </p>
 
-> **Status: early development (0.1.0).** This is the project skeleton; features are being added
-> step by step.
+> **Status: early development (0.1.0).** You can already play along with a built-in example
+> song; loading your own songs and sound come next.
 
-## Planned features
+## Features
 
 - **Song files**: a plain-text format with chords, strumming pattern and tempo
   ([spec](docs/song-format.md)).
-- **Strumming lane**: down/up arrows scrolling in time with the beat.
+- **Chord carousel**: the current chord in the middle with its diagram, the next two on its
+  right; it moves to the next chord one beat early, so you have time to change fingering.
+- **Strumming lane**: `D` / `U` strokes scroll towards a hit line in time with the beat, with the
+  count (`1 & 2 &`) underneath; the strum where the chord changes is highlighted.
 - **Chord names** as letters (`G`, `Am`) or solfège (`Sol`, `La minore`).
-- **Chord diagrams** showing where to put your fingers.
-- Metronome, adjustable tempo and count-in.
+- **Chord diagrams** showing where to put your fingers, barres included.
+- Play / pause, restart, adjustable tempo and a one-bar count-in.
 - Runs on iOS, Android and the web.
+
+## Roadmap
+
+| Step | What                                              | Status |
+| ---- | ------------------------------------------------- | ------ |
+| 1    | Song file format and parser                       | ✅     |
+| 2    | Expo Router, home and player screens              | ✅     |
+| 3    | Chord diagrams                                    | ✅     |
+| 4    | Letter / solfège chord names                      | ✅     |
+| 5    | Beat clock: play/pause, tempo, count-in           | ✅     |
+| 6    | Strumming lane and chord carousel                 | ✅     |
+| 7    | Metronome click                                   | next   |
+| 8    | Load or paste your own songs, example library     |        |
+| 9    | Single notes and riffs (tabs), polish, app builds |        |
 
 ## Tech stack
 
