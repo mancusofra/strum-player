@@ -22,6 +22,7 @@ it is merged.
    ```bash
    npm run lint
    npm run typecheck
+   npm test
    ```
 5. Open a **pull request against `main`** and fill in the template. CI runs once the maintainer
    approves it; you may be asked for changes before the merge.
