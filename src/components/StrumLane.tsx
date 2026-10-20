@@ -1,6 +1,5 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Animated, StyleSheet, Text, View, type LayoutChangeEvent } from 'react-native';
-import Svg, { Path } from 'react-native-svg';
 
 import { chordSymbol, type Notation } from '@/music/notation';
 import type { StrumEvent } from '@/song/strums';
@@ -8,8 +7,8 @@ import type { Timeline } from '@/song/timeline';
 import { colors } from '@/theme';
 
 const PX_PER_BEAT = 64;
-const HIT_AT = 0.25; // hit line position, as a share of the lane width
-const ARROW = 30;
+const HIT_AT = 0.5; // hit line position, as a share of the lane width
+const SLOT = 30;
 const HEIGHT = 132;
 
 interface Props {
@@ -23,7 +22,8 @@ interface Props {
 }
 
 /**
- * Strokes scroll right to left and are played as they cross the hit line.
+ * Strokes scroll right to left and are played as they cross the hit line in
+ * the middle. Slots where the chord changes are orange, the rest neutral.
  * The row moves through an Animated.Value set on every frame, so React only
  * re-renders when the whole beat or the active slot changes.
  */
@@ -65,6 +65,7 @@ export function StrumLane({ events, timeline, notation, beat, getBeat, playing }
       style={styles.lane}
       onLayout={(e: LayoutChangeEvent) => setWidth(e.nativeEvent.layout.width)}
       accessibilityLabel="Strumming lane">
+      <View pointerEvents="none" style={[styles.hitLine, { left: hitX - 2 }]} />
       <Animated.View style={[styles.row, { transform: [{ translateX: offset }] }]}>
         {bars.map((c) => (
           <View key={`c${c.start}`} style={[styles.chordMark, { left: c.start * PX_PER_BEAT }]}>
@@ -73,49 +74,30 @@ export function StrumLane({ events, timeline, notation, beat, getBeat, playing }
           </View>
         ))}
         {visible.map(({ e, i }) => (
-          <View key={i} style={[styles.slot, { left: e.beat * PX_PER_BEAT - ARROW / 2 }]}>
-            <Stroke stroke={e.stroke} active={i === active} />
+          <View key={i} style={[styles.slot, { left: e.beat * PX_PER_BEAT - SLOT / 2 }]}>
+            <Stroke event={e} active={i === active} />
             <Text style={[styles.count, /\d/.test(e.count) && styles.countBeat]}>{e.count}</Text>
           </View>
         ))}
       </Animated.View>
-      <View pointerEvents="none" style={[styles.hitLine, { left: hitX - 2 }]} />
     </View>
   );
 }
 
-function Stroke({ stroke, active }: { stroke: StrumEvent['stroke']; active: boolean }) {
-  if (stroke === '-') {
-    return (
-      <View style={styles.strokeBox}>
-        <View style={[styles.rest, active && styles.restActive]} />
-      </View>
-    );
-  }
-  if (stroke === 'x') {
-    return (
-      <View style={styles.strokeBox}>
-        <Text style={[styles.mute, active && styles.activeText]}>×</Text>
-      </View>
-    );
-  }
-  const color = stroke === 'D' ? colors.accent : colors.text;
+function Stroke({ event, active }: { event: StrumEvent; active: boolean }) {
+  const label = { D: 'D', U: 'U', x: '×', '-': '·' }[event.stroke];
+  const played = event.stroke === 'D' || event.stroke === 'U';
   return (
     <View style={[styles.strokeBox, active && styles.strokeActive]}>
-      <Svg
-        width={ARROW}
-        height={ARROW}
-        viewBox="0 0 24 24"
-        style={stroke === 'U' ? styles.up : undefined}>
-        <Path
-          d="M12 2v16M5 12l7 8 7-8"
-          stroke={color}
-          strokeWidth={active ? 3.6 : 2.8}
-          strokeLinecap="round"
-          strokeLinejoin="round"
-          fill="none"
-        />
-      </Svg>
+      <Text
+        style={[
+          styles.stroke,
+          !played && styles.unplayed,
+          event.change && styles.change,
+          active && !event.change && styles.activeText,
+        ]}>
+        {label}
+      </Text>
     </View>
   );
 }
@@ -146,19 +128,18 @@ const styles = StyleSheet.create({
     backgroundColor: colors.muted,
     opacity: 0.5,
   },
-  slot: { position: 'absolute', top: 40, width: ARROW, alignItems: 'center' },
+  slot: { position: 'absolute', top: 40, width: SLOT, alignItems: 'center' },
   strokeBox: {
-    width: ARROW + 6,
-    height: ARROW + 6,
+    width: SLOT + 6,
+    height: SLOT + 6,
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 8,
   },
-  strokeActive: { transform: [{ scale: 1.25 }] },
-  up: { transform: [{ rotate: '180deg' }] },
-  rest: { width: 6, height: 6, borderRadius: 3, backgroundColor: colors.muted },
-  restActive: { backgroundColor: colors.text },
-  mute: { color: colors.muted, fontSize: 28, fontWeight: '700', lineHeight: 32 },
+  strokeActive: { transform: [{ scale: 1.3 }] },
+  stroke: { color: colors.text, fontSize: 26, fontWeight: '800', lineHeight: 32 },
+  unplayed: { color: colors.muted },
+  change: { color: colors.accent },
   activeText: { color: colors.text },
   count: { color: colors.muted, fontSize: 12, marginTop: 6 },
   countBeat: { color: colors.text, fontWeight: '700' },
@@ -168,7 +149,7 @@ const styles = StyleSheet.create({
     bottom: 8,
     width: 4,
     borderRadius: 2,
-    backgroundColor: colors.accent,
-    opacity: 0.6,
+    backgroundColor: colors.text,
+    opacity: 0.3,
   },
 });
