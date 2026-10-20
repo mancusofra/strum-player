@@ -9,7 +9,7 @@ import { useClock } from '@/player/useClock';
 import { EXAMPLE_SONG } from '@/song/examples';
 import { parseSong } from '@/song/parse';
 import { strumEvents } from '@/song/strums';
-import { buildTimeline, positionAt, upcomingChords } from '@/song/timeline';
+import { buildTimeline, changeIndexAt, chordChanges, positionAt } from '@/song/timeline';
 import { colors } from '@/theme';
 
 const MIN_BPM = 40;
@@ -19,6 +19,7 @@ export default function Player() {
   const song = useMemo(() => parseSong(EXAMPLE_SONG), []);
   const timeline = useMemo(() => buildTimeline(song), [song]);
   const strums = useMemo(() => strumEvents(song), [song]);
+  const changes = useMemo(() => chordChanges(timeline), [timeline]);
   const [notation, setNotation] = useState<Notation>('letters');
   const [bpm, setBpm] = useState(song.bpm);
   const { beat, playing, toggle, restart, getBeat } = useClock(
@@ -29,7 +30,6 @@ export default function Player() {
 
   const countingIn = beat < 0;
   const pos = positionAt(timeline, beat);
-  const current = timeline.chords[pos.chordIndex].chord;
   const changeBpm = (delta: number) =>
     setBpm((b) => Math.min(MAX_BPM, Math.max(MIN_BPM, b + delta)));
 
@@ -45,9 +45,10 @@ export default function Player() {
       </View>
 
       <ChordCarousel
-        current={current}
-        upcoming={upcomingChords(timeline, pos.chordIndex, 2)}
+        changes={changes}
+        index={changeIndexAt(changes, beat)}
         notation={notation}
+        style={styles.carousel}
       />
 
       <StrumLane
@@ -107,6 +108,8 @@ export default function Player() {
 const styles = StyleSheet.create({
   content: { padding: 16, gap: 16, alignItems: 'center' },
   header: { alignItems: 'center' },
+  // full width, past the screen padding, so the next chords fit
+  carousel: { alignSelf: 'stretch', marginHorizontal: -16 },
   title: { color: colors.text, fontSize: 18, fontWeight: '700' },
   meta: { color: colors.muted, fontSize: 14, marginTop: 2 },
   beats: { flexDirection: 'row', gap: 14 },

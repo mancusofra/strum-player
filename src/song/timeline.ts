@@ -45,14 +45,22 @@ export function positionAt(timeline: Timeline, beat: number): Position {
   };
 }
 
-/** The next `count` chord changes after `index`; repeats of a chord are skipped. */
-export function upcomingChords(timeline: Timeline, index: number, count: number): string[] {
-  const out: string[] = [];
-  let last = timeline.chords[index]?.chord;
-  for (let i = index + 1; i < timeline.chords.length && out.length < count; i++) {
-    const { chord } = timeline.chords[i];
-    if (chord !== last) out.push(chord);
-    last = chord;
+/** The song's chords with repeats merged: `| G | % | D |` gives G, D. */
+export function chordChanges(timeline: Timeline): TimedChord[] {
+  const out: TimedChord[] = [];
+  for (const c of timeline.chords) {
+    const last = out.at(-1);
+    if (last?.chord === c.chord) out[out.length - 1] = { ...last, beats: last.beats + c.beats };
+    else out.push(c);
   }
   return out;
+}
+
+/** Index in `changes` of the chord sounding on `beat`. */
+export function changeIndexAt(changes: TimedChord[], beat: number): number {
+  let index = 0;
+  changes.forEach((c, i) => {
+    if (c.start <= beat) index = i;
+  });
+  return index;
 }

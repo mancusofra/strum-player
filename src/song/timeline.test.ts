@@ -1,6 +1,6 @@
 import { EXAMPLE_SONG } from './examples';
 import { parseSong } from './parse';
-import { buildTimeline, positionAt, upcomingChords } from './timeline';
+import { buildTimeline, changeIndexAt, chordChanges, positionAt } from './timeline';
 
 const timeline = buildTimeline(parseSong('| G | D Em | C |'));
 
@@ -40,16 +40,22 @@ describe('EXAMPLE_SONG', () => {
   });
 });
 
-describe('upcomingChords', () => {
-  const t = buildTimeline(parseSong('| G | % | D Em | C | G |'));
+describe('chordChanges', () => {
+  const changes = chordChanges(buildTimeline(parseSong('| G | % | D Em | C | C |')));
 
-  it('lists the next chord changes, skipping repeats', () => {
-    expect(upcomingChords(t, 0, 2)).toEqual(['D', 'Em']);
-    expect(upcomingChords(t, 2, 2)).toEqual(['Em', 'C']);
+  it('merges repeated chords', () => {
+    expect(changes.map((c) => [c.chord, c.start, c.beats])).toEqual([
+      ['G', 0, 8],
+      ['D', 8, 2],
+      ['Em', 10, 2],
+      ['C', 12, 8],
+    ]);
   });
 
-  it('runs out at the end of the song', () => {
-    expect(upcomingChords(t, 4, 2)).toEqual(['G']);
-    expect(upcomingChords(t, 5, 2)).toEqual([]);
+  it('finds the change sounding on a beat', () => {
+    expect(changeIndexAt(changes, -2)).toBe(0);
+    expect(changeIndexAt(changes, 7.9)).toBe(0);
+    expect(changeIndexAt(changes, 10)).toBe(2);
+    expect(changeIndexAt(changes, 19)).toBe(3);
   });
 });
