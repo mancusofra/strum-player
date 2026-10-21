@@ -5,13 +5,14 @@
   in time, with chord names (C D E or Do Re Mi) and finger positions on the fretboard.
 </p>
 
-> **Status: early development (0.1.0).** Write or paste your own songs, or start from the
-> examples, and play along with a metronome click.
+> **Status: early development (0.1.0).** Write, paste or import your own songs, or start from
+> the examples, and play along with a metronome click.
 
 ## Features
 
 - **Song library**: built-in examples plus your own songs, saved on the device. Write or paste a
-  song in the editor, which points out mistakes with their line number as you type.
+  song in the editor, or import a `.txt` file; the editor points out mistakes with their line number
+  as you type.
 - **Song files**: a plain-text format with chords, strumming pattern and tempo
   ([spec](docs/song-format.md)).
 - **Chord carousel**: the current chord in the middle with its diagram, the next two on its
@@ -36,13 +37,13 @@
 | 6    | Strumming lane and chord carousel                 | ✅     |
 | 7    | Metronome click                                   | ✅     |
 | 8a   | Song library and editor (write or paste)          | ✅     |
-| 8b   | Import a song file                                | next   |
-| 9    | Single notes and riffs (tabs), polish, app builds |        |
+| 8b   | Import a song file                                | ✅     |
+| 9    | Single notes and riffs (tabs), polish, app builds | next   |
 
 ## Tech stack
 
 [Expo](https://expo.dev) SDK 58 (React Native) with TypeScript · Expo Router · `react-native-web` ·
-`react-native-svg` · `expo-audio` · `expo-sqlite`.
+`react-native-svg` · `expo-audio` · `expo-sqlite` · `expo-document-picker`.
 
 ## Running it locally
 
@@ -73,7 +74,7 @@ scripts/          dev scripts
 src/
 ├── app/          screens (Expo Router: one file per route)
 ├── components/   UI pieces (player view, chord diagram and carousel, strumming lane, song row)
-├── library/      saved songs (localStorage via expo-sqlite on native) and the song list
+├── library/      saved songs (localStorage via expo-sqlite on native), song list, file import
 ├── music/        chord shapes, diagram layout, note naming (letters / solfège)
 ├── player/       beat clock (play/pause, tempo, count-in) and metronome
 ├── song/         song file types, parser, timeline, strum events, example songs

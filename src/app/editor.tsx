@@ -11,20 +11,32 @@ import {
   View,
 } from 'react-native';
 
-import { confirmDestructive } from '@/components/confirm';
+import { confirmDestructive } from '@/components/dialogs';
 import { songStore } from '@/library';
+import { getDraft } from '@/library/imported';
 import { checkSong, findSong } from '@/library/songs';
 import { NEW_SONG_TEMPLATE } from '@/song/examples';
 import { colors } from '@/theme';
 
 const MONO = Platform.select({ ios: 'Menlo', default: 'monospace' });
 
-/** Write or paste a song. `id` edits a saved song, `from` starts from a copy. */
+/**
+ * Write or paste a song. `id` edits a saved song, `from` starts from a copy
+ * of another one, `draft` from an imported file.
+ */
 export default function Editor() {
-  const { id, from } = useLocalSearchParams<{ id?: string; from?: string }>();
+  const { id, from, draft } = useLocalSearchParams<{
+    id?: string;
+    from?: string;
+    draft?: string;
+  }>();
   const editing = id ? songStore.get(id) : undefined;
   const [text, setText] = useState(
-    () => editing?.text ?? findSong(songStore, from)?.text ?? NEW_SONG_TEMPLATE,
+    () =>
+      editing?.text ??
+      findSong(songStore, from)?.text ??
+      (draft ? getDraft() : undefined) ??
+      NEW_SONG_TEMPLATE,
   );
   const checked = useMemo(() => checkSong(text), [text]);
 
@@ -42,7 +54,9 @@ export default function Editor() {
     <KeyboardAvoidingView
       style={styles.flex}
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
-      <Stack.Screen options={{ title: editing ? 'Edit song' : 'New song' }} />
+      <Stack.Screen
+        options={{ title: editing ? 'Edit song' : draft ? 'Imported song' : 'New song' }}
+      />
       <ScrollView contentContainerStyle={styles.content} keyboardShouldPersistTaps="handled">
         <TextInput
           value={text}

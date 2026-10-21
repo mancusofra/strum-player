@@ -1,6 +1,7 @@
 # Song format
 
-A song is a plain-text file. Header lines (`key: value`) come first, then bar lines.
+A song is a plain-text file (UTF-8, any extension, e.g. `.txt`), which you can write in the app's
+editor or import with "Import file". Header lines (`key: value`) come first, then bar lines.
 
 ```
 # Comments start with "#" at the start of a line or after a space.
