@@ -6,6 +6,7 @@ import { NotationToggle } from '@/components/NotationToggle';
 import { StrumLane } from '@/components/StrumLane';
 import type { Notation } from '@/music/notation';
 import { useClock } from '@/player/useClock';
+import { useMetronome } from '@/player/useMetronome';
 import { EXAMPLE_SONG } from '@/song/examples';
 import { parseSong } from '@/song/parse';
 import { strumEvents } from '@/song/strums';
@@ -30,6 +31,8 @@ export default function Player() {
     song.beatsPerBar,
     timeline.totalBeats,
   );
+  const [click, setClick] = useState(true);
+  useMetronome(getBeat, bpm, playing, click, song.beatsPerBar);
 
   const countingIn = beat < 0;
   const pos = positionAt(timeline, beat);
@@ -104,6 +107,17 @@ export default function Player() {
           <Text style={styles.secondaryText}>+</Text>
         </Pressable>
       </View>
+
+      <Pressable
+        onPress={() => setClick((c) => !c)}
+        accessibilityRole="switch"
+        accessibilityState={{ checked: click }}
+        accessibilityLabel="Metronome click"
+        style={[styles.pill, click && styles.pillOn]}>
+        <Text style={[styles.pillText, click && styles.pillTextOn]}>
+          {click ? 'Click on' : 'Click off'}
+        </Text>
+      </Pressable>
     </ScrollView>
   );
 }
@@ -140,5 +154,15 @@ const styles = StyleSheet.create({
   },
   secondaryText: { color: colors.text, fontSize: 20, fontWeight: '700' },
   tempo: { flexDirection: 'row', alignItems: 'center', gap: 20 },
+  pill: {
+    paddingHorizontal: 16,
+    paddingVertical: 8,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: colors.muted,
+  },
+  pillOn: { backgroundColor: colors.surface, borderColor: colors.accent },
+  pillText: { color: colors.muted, fontSize: 15, fontWeight: '600' },
+  pillTextOn: { color: colors.text },
   bpm: { color: colors.text, fontSize: 18, fontWeight: '600', minWidth: 80, textAlign: 'center' },
 });
