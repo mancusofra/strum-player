@@ -68,7 +68,7 @@ export function parseSong(text: string): Song {
         song.title = value;
         break;
       case 'artist':
-        song.artist = value;
+        song.artist = value || undefined;
         break;
       case 'bpm': {
         const bpm = Number(value);

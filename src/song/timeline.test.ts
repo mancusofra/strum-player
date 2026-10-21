@@ -1,4 +1,4 @@
-import { EXAMPLE_SONG } from './examples';
+import { EXAMPLES } from './examples';
 import { parseSong } from './parse';
 import { buildTimeline, changeIndexAt, chordChanges, positionAt } from './timeline';
 
@@ -33,10 +33,11 @@ describe('positionAt', () => {
   });
 });
 
-describe('EXAMPLE_SONG', () => {
-  it('parses into a playable timeline', () => {
-    const t = buildTimeline(parseSong(EXAMPLE_SONG));
-    expect(t.totalBeats).toBe(32);
+describe('EXAMPLES', () => {
+  it('parse into playable timelines', () => {
+    expect(buildTimeline(parseSong(EXAMPLES[0].text)).totalBeats).toBe(32);
+    for (const e of EXAMPLES)
+      expect(buildTimeline(parseSong(e.text)).totalBeats).toBeGreaterThan(0);
   });
 });
 
