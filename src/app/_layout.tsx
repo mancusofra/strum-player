@@ -15,6 +15,7 @@ export default function RootLayout() {
         }}>
         <Stack.Screen name="index" options={{ headerShown: false }} />
         <Stack.Screen name="player" options={{ title: 'Player' }} />
+        <Stack.Screen name="editor" options={{ title: 'Song' }} />
       </Stack>
       <StatusBar style="light" />
     </>

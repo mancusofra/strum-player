@@ -22,6 +22,10 @@ describe('parseSong', () => {
     expect(song.bars[0].pattern.join('')).toBe('DDDD');
   });
 
+  it('treats an empty artist as no artist', () => {
+    expect(parseSong('artist:\n| C |').artist).toBeUndefined();
+  });
+
   it('splits a bar evenly between its chords', () => {
     const [bar] = parseSong('| G D |').bars;
     expect(bar.chords).toEqual([

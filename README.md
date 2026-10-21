@@ -5,11 +5,13 @@
   in time, with chord names (C D E or Do Re Mi) and finger positions on the fretboard.
 </p>
 
-> **Status: early development (0.1.0).** You can already play along with a built-in example
-> song with a metronome click; loading your own songs comes next.
+> **Status: early development (0.1.0).** Write or paste your own songs, or start from the
+> examples, and play along with a metronome click.
 
 ## Features
 
+- **Song library**: built-in examples plus your own songs, saved on the device. Write or paste a
+  song in the editor, which points out mistakes with their line number as you type.
 - **Song files**: a plain-text format with chords, strumming pattern and tempo
   ([spec](docs/song-format.md)).
 - **Chord carousel**: the current chord in the middle with its diagram, the next two on its
@@ -33,13 +35,14 @@
 | 5    | Beat clock: play/pause, tempo, count-in           | ✅     |
 | 6    | Strumming lane and chord carousel                 | ✅     |
 | 7    | Metronome click                                   | ✅     |
-| 8    | Load or paste your own songs, example library     | next   |
+| 8a   | Song library and editor (write or paste)          | ✅     |
+| 8b   | Import a song file                                | next   |
 | 9    | Single notes and riffs (tabs), polish, app builds |        |
 
 ## Tech stack
 
 [Expo](https://expo.dev) SDK 58 (React Native) with TypeScript · Expo Router · `react-native-web` ·
-`react-native-svg` · `expo-audio`.
+`react-native-svg` · `expo-audio` · `expo-sqlite`.
 
 ## Running it locally
 
@@ -69,10 +72,11 @@ docs/             song format spec
 scripts/          dev scripts
 src/
 ├── app/          screens (Expo Router: one file per route)
-├── components/   UI pieces (chord diagram and carousel, notation toggle, strumming lane)
+├── components/   UI pieces (player view, chord diagram and carousel, strumming lane, song row)
+├── library/      saved songs (localStorage via expo-sqlite on native) and the song list
 ├── music/        chord shapes, diagram layout, note naming (letters / solfège)
 ├── player/       beat clock (play/pause, tempo, count-in) and metronome
-├── song/         song file types, parser, timeline, strum events, example song
+├── song/         song file types, parser, timeline, strum events, example songs
 └── theme.ts      shared colors
 ```
 
