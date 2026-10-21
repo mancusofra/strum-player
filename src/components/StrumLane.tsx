@@ -1,7 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Animated, StyleSheet, Text, View, type LayoutChangeEvent } from 'react-native';
 
-import { chordSymbol, type Notation } from '@/music/notation';
+import { chordSymbol, noteName, type Notation } from '@/music/notation';
 import type { StrumEvent } from '@/song/strums';
 import type { Timeline } from '@/song/timeline';
 import { colors } from '@/theme';
@@ -75,7 +75,7 @@ export function StrumLane({ events, timeline, notation, beat, getBeat, playing }
         ))}
         {visible.map(({ e, i }) => (
           <View key={i} style={[styles.slot, { left: e.beat * PX_PER_BEAT - SLOT / 2 }]}>
-            <Stroke event={e} active={i === active} />
+            <Stroke event={e} active={i === active} notation={notation} />
             <Text style={[styles.count, /\d/.test(e.count) && styles.countBeat]}>{e.count}</Text>
           </View>
         ))}
@@ -84,7 +84,25 @@ export function StrumLane({ events, timeline, notation, beat, getBeat, playing }
   );
 }
 
-function Stroke({ event, active }: { event: StrumEvent; active: boolean }) {
+function Stroke({
+  event,
+  active,
+  notation,
+}: {
+  event: StrumEvent;
+  active: boolean;
+  notation: Notation;
+}) {
+  if (event.note) {
+    return (
+      <View style={[styles.strokeBox, styles.noteBox, active && styles.strokeActive]}>
+        <Text style={[styles.noteName, active && styles.activeText]}>
+          {noteName(event.note.name, notation)}
+        </Text>
+        <Text style={styles.notePos}>{`${event.note.string}:${event.note.fret}`}</Text>
+      </View>
+    );
+  }
   const label = { D: 'D', U: 'U', x: '×', '-': '·' }[event.stroke];
   const played = event.stroke === 'D' || event.stroke === 'U';
   return (
@@ -139,6 +157,10 @@ const styles = StyleSheet.create({
   strokeActive: { transform: [{ scale: 1.3 }] },
   stroke: { color: colors.text, fontSize: 26, fontWeight: '800', lineHeight: 32 },
   unplayed: { color: colors.muted },
+  // wider than a slot so solfège names like Sol# stay on one line
+  noteBox: { width: SLOT + 30 },
+  noteName: { color: colors.text, fontSize: 17, fontWeight: '800' },
+  notePos: { color: colors.muted, fontSize: 10, fontWeight: '600' },
   change: { color: colors.accent },
   activeText: { color: colors.text },
   count: { color: colors.muted, fontSize: 12, marginTop: 6 },

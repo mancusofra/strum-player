@@ -29,7 +29,8 @@ function split(chord: string) {
   return { letter: m[1], acc: m[2], suffix: m[3], bass: m[4] };
 }
 
-function noteName(note: string, notation: Notation) {
+/** A pitch name in the chosen notation: "F#" or "Fa#". */
+export function noteName(note: string, notation: Notation) {
   if (notation === 'letters') return note;
   return SOLFEGE[note[0]] + note.slice(1);
 }

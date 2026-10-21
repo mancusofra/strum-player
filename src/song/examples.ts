@@ -56,6 +56,22 @@ pattern: D-xU-UxU
 | E7 | E7 | Am | Am |
 `,
   },
+  {
+    id: 'example-scale-and-chords',
+    text: `title: C Scale and Chords
+artist: Practice
+bpm: 70
+time: 4/4
+# A "notes" bar holds single notes: a name (C, F#, Bb3) or string:fret (5:3).
+# Without an octave, C D E F G A B is the C major scale in first position.
+pattern: D-DU-UDU
+
+notes | C D E F | G A B C4 |
+| C | G7 | C | C |
+notes | C4 B A G | F E D C |
+| C | F G7 | C | C |
+`,
+  },
 ];
 
 /** Starting text for a new song in the editor. */

@@ -23,21 +23,22 @@ export interface Position {
 
 export function buildTimeline(song: Song): Timeline {
   const chords: TimedChord[] = [];
-  let start = 0;
   song.bars.forEach((bar, b) => {
+    // Bars of single notes have no chords but still take their beats.
+    let start = b * song.beatsPerBar;
     for (const c of bar.chords) {
       chords.push({ chord: c.chord, bar: b, start, beats: c.beats });
       start += c.beats;
     }
   });
-  return { chords, beatsPerBar: song.beatsPerBar, totalBeats: start };
+  return { chords, beatsPerBar: song.beatsPerBar, totalBeats: song.bars.length * song.beatsPerBar };
 }
 
 /** Where `beat` falls in the song; beats outside it are clamped to the ends. */
 export function positionAt(timeline: Timeline, beat: number): Position {
   const b = Math.min(Math.max(beat, 0), timeline.totalBeats - 1e-9);
-  let chordIndex = timeline.chords.findIndex((c) => b < c.start + c.beats);
-  if (chordIndex < 0) chordIndex = timeline.chords.length - 1;
+  // The last chord started by now; -1 before the first one.
+  const chordIndex = timeline.chords.findLastIndex((c) => c.start <= b);
   return {
     bar: Math.floor(b / timeline.beatsPerBar),
     beatInBar: Math.floor(b % timeline.beatsPerBar),

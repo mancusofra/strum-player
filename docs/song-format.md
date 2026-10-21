@@ -36,6 +36,27 @@ pattern: DDDD
 - Chord names are letters: a root `A`–`G`, an optional `#` or `b`, any suffix (`m`, `7`, `maj7`,
   `sus4`…) and an optional bass note (`G/B`).
 
+## Single notes
+
+A bar line starting with `notes` holds single notes instead of chords. Like a pattern, each token is
+one slot, spread evenly across the bar.
+
+```
+notes | C D E F | G A B C4 |
+notes | 5:3 - 4:0 4:2 | 3:0 - - - |
+```
+
+| Token           | Meaning                                                                                                                                              |
+| --------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `C`, `F#`, `Bb` | A note name, played as close to the nut as possible. Without an octave it is in octave 3, so `C D E F G A B` is the C major scale in first position. |
+| `C4`, `E2`      | A note name with its octave (`C4` is middle C, `E2` the low E string).                                                                               |
+| `5:3`           | String and fret, as in tab: strings 1 (high e) to 6 (low E), frets 0–15.                                                                             |
+| `-`             | Rest.                                                                                                                                                |
+| `%`             | Repeats the previous bar.                                                                                                                            |
+
+The player shows each note's name (as letters or solfège), its string and fret, and the finger to use
+in first position (fret 1 index … fret 4 pinky).
+
 ## Strumming pattern
 
 Each character is one slot, and the slots are spread evenly across the bar: 8 slots in 4/4 are

@@ -16,6 +16,28 @@ describe('buildTimeline', () => {
   });
 });
 
+describe('a song with single notes', () => {
+  const t = buildTimeline(parseSong('| G |\nnotes | C D E F |\n| C |'));
+
+  it('keeps the beats of note bars', () => {
+    expect(t.chords.map((c) => [c.chord, c.start])).toEqual([
+      ['G', 0],
+      ['C', 8],
+    ]);
+    expect(t.totalBeats).toBe(12);
+  });
+
+  it('stays on the last chord through the notes', () => {
+    expect(positionAt(t, 5)).toEqual({ bar: 1, beatInBar: 1, chordIndex: 0 });
+    expect(positionAt(t, 8).chordIndex).toBe(1);
+  });
+
+  it('has no chord before the first one', () => {
+    const riffFirst = buildTimeline(parseSong('notes | C |\n| G |'));
+    expect(positionAt(riffFirst, 1).chordIndex).toBe(-1);
+  });
+});
+
 describe('positionAt', () => {
   it.each([
     [0, { bar: 0, beatInBar: 0, chordIndex: 0 }],

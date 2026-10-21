@@ -47,4 +47,17 @@ describe('strumEvents', () => {
     expect(events.map((e) => e.chord)).toEqual(['G', 'G', 'D']);
     expect(events.map((e) => e.change)).toEqual([true, false, true]);
   });
+
+  it('lays out single notes and marks the chord after them as a change', () => {
+    const events = strumEvents(parseSong('pattern: DDDD\n| G |\nnotes | C - E D |\n| G |'));
+    const notes = events.filter((e) => e.bar === 1);
+    expect(notes.map((e) => [e.beat, e.note?.name ?? e.stroke, e.chord])).toEqual([
+      [4, 'C', ''],
+      [5, '-', ''],
+      [6, 'E', ''],
+      [7, 'D', ''],
+    ]);
+    expect(notes.some((e) => e.change)).toBe(false);
+    expect(events[8]).toMatchObject({ chord: 'G', change: true });
+  });
 });
