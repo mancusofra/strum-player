@@ -19,6 +19,8 @@
   right; it moves to the next chord one beat early, so you have time to change fingering.
 - **Strumming lane**: `D` / `U` strokes scroll towards a hit line in time with the beat, with the
   count (`1 & 2 &`) underneath; the strum where the chord changes is highlighted.
+- **Single notes and riffs**: `notes` bars with note names (`C D E`) or tab positions (`5:3`);
+  the player shows the note, its string and fret and which finger to use.
 - **Chord names** as letters (`G`, `Am`) or solfège (`Sol`, `La minore`).
 - **Chord diagrams** showing where to put your fingers, barres included.
 - **Metronome click**, accented on the first beat of each bar, that you can turn off.
@@ -27,18 +29,20 @@
 
 ## Roadmap
 
-| Step | What                                              | Status |
-| ---- | ------------------------------------------------- | ------ |
-| 1    | Song file format and parser                       | ✅     |
-| 2    | Expo Router, home and player screens              | ✅     |
-| 3    | Chord diagrams                                    | ✅     |
-| 4    | Letter / solfège chord names                      | ✅     |
-| 5    | Beat clock: play/pause, tempo, count-in           | ✅     |
-| 6    | Strumming lane and chord carousel                 | ✅     |
-| 7    | Metronome click                                   | ✅     |
-| 8a   | Song library and editor (write or paste)          | ✅     |
-| 8b   | Import a song file                                | ✅     |
-| 9    | Single notes and riffs (tabs), polish, app builds | next   |
+| Step | What                                     | Status |
+| ---- | ---------------------------------------- | ------ |
+| 1    | Song file format and parser              | ✅     |
+| 2    | Expo Router, home and player screens     | ✅     |
+| 3    | Chord diagrams                           | ✅     |
+| 4    | Letter / solfège chord names             | ✅     |
+| 5    | Beat clock: play/pause, tempo, count-in  | ✅     |
+| 6    | Strumming lane and chord carousel        | ✅     |
+| 7    | Metronome click                          | ✅     |
+| 8a   | Song library and editor (write or paste) | ✅     |
+| 8b   | Import a song file                       | ✅     |
+| 9a   | Single notes and riffs                   | ✅     |
+| 9b   | Polish                                   | next   |
+| 9c   | App builds (EAS)                         |        |
 
 ## Tech stack
 
@@ -73,9 +77,9 @@ docs/             song format spec
 scripts/          dev scripts
 src/
 ├── app/          screens (Expo Router: one file per route)
-├── components/   UI pieces (player view, chord diagram and carousel, strumming lane, song row)
+├── components/   UI pieces (player view, chord diagram and carousel, note panel, strumming lane)
 ├── library/      saved songs (localStorage via expo-sqlite on native), song list, file import
-├── music/        chord shapes, diagram layout, note naming (letters / solfège)
+├── music/        chord shapes, diagram layout, single notes, naming (letters / solfège)
 ├── player/       beat clock (play/pause, tempo, count-in) and metronome
 ├── song/         song file types, parser, timeline, strum events, example songs
 └── theme.ts      shared colors

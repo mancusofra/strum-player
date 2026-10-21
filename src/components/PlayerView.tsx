@@ -3,6 +3,7 @@ import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 
 import { ChordCarousel } from '@/components/ChordCarousel';
 import { NotationToggle } from '@/components/NotationToggle';
+import { NotePanel } from '@/components/NotePanel';
 import { StrumLane } from '@/components/StrumLane';
 import type { Notation } from '@/music/notation';
 import { useClock } from '@/player/useClock';
@@ -14,8 +15,8 @@ import { colors } from '@/theme';
 
 const MIN_BPM = 40;
 const MAX_BPM = 200;
-// The carousel moves to the next chord this many beats before it is played,
-// leaving time to change the fingering.
+// The carousel (or note panel) moves to the next chord or note this many
+// beats before it is played, leaving time to change the fingering.
 const CHANGE_LEAD_BEATS = 1;
 
 /** The play-along screen for one song: carousel, strumming lane, controls. */
@@ -35,6 +36,8 @@ export function PlayerView({ song }: { song: Song }) {
 
   const countingIn = beat < 0;
   const pos = positionAt(timeline, beat);
+  // Bars of single notes swap the chord carousel for the note panel.
+  const onNotes = !!song.bars[positionAt(timeline, beat + CHANGE_LEAD_BEATS).bar]?.notes;
   const changeBpm = (delta: number) =>
     setBpm((b) => Math.min(MAX_BPM, Math.max(MIN_BPM, b + delta)));
 
@@ -49,12 +52,25 @@ export function PlayerView({ song }: { song: Song }) {
         </Text>
       </View>
 
-      <ChordCarousel
-        changes={changes}
-        index={changeIndexAt(changes, beat + CHANGE_LEAD_BEATS)}
-        notation={notation}
-        style={styles.carousel}
-      />
+      <View style={styles.stage}>
+        {onNotes ? (
+          <NotePanel
+            events={strums}
+            getBeat={getBeat}
+            beat={beat}
+            playing={playing}
+            notation={notation}
+            lead={CHANGE_LEAD_BEATS}
+          />
+        ) : (
+          <ChordCarousel
+            changes={changes}
+            index={changeIndexAt(changes, beat + CHANGE_LEAD_BEATS)}
+            notation={notation}
+            style={styles.carousel}
+          />
+        )}
+      </View>
 
       <StrumLane
         events={strums}
@@ -125,6 +141,8 @@ const styles = StyleSheet.create({
   content: { padding: 16, gap: 16, alignItems: 'center' },
   header: { alignItems: 'center' },
   // full width, past the screen padding, so the next chords fit
+  // same height for chords and notes, so the lane below doesn't jump
+  stage: { alignSelf: 'stretch', minHeight: 214, justifyContent: 'flex-end' },
   carousel: { alignSelf: 'stretch', marginHorizontal: -16 },
   artist: { color: colors.text, fontSize: 16, fontWeight: '600' },
   meta: { color: colors.muted, fontSize: 14, marginTop: 2 },

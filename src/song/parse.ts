@@ -1,3 +1,5 @@
+import { parseNote } from '@/music/notes';
+
 import type { Bar, Song, Stroke } from './types';
 
 export class SongParseError extends Error {
@@ -24,7 +26,8 @@ const STROKES = /^[DUx-]+$/;
  *
  * `#` at the start of a line or after a space starts a comment, `%` repeats
  * the previous bar, and `pattern:` may be set again between bar lines to
- * change the strumming from there on. Full spec: docs/song-format.md.
+ * change the strumming from there on. A bar line starting with `notes` holds
+ * single notes (`notes | C D E - | 5:3 |`). Full spec: docs/song-format.md.
  */
 export function parseSong(text: string): Song {
   const song: Song = { title: 'Untitled', bpm: 80, beatsPerBar: 4, beatUnit: 4, bars: [] };
@@ -35,16 +38,17 @@ export function parseSong(text: string): Song {
     const line = raw.replace(/(^|\s)#.*/, '').trim();
     if (!line) return;
 
-    if (line.startsWith('|')) {
+    const notes = /^notes\s*\|/.test(line);
+    if (notes || line.startsWith('|')) {
       pattern ??= defaultPattern(song.beatsPerBar);
-      const cells = line.split('|').slice(1);
+      const cells = line.slice(line.indexOf('|')).split('|').slice(1);
       cells.forEach((cell, c) => {
         const tokens = cell.trim().split(/\s+/).filter(Boolean);
         if (tokens.length === 0) {
           if (c === cells.length - 1) return; // closing bar line
           throw new SongParseError('empty bar', n);
         }
-        song.bars.push(parseBar(tokens, song, pattern!, n));
+        song.bars.push(notes ? parseNoteBar(tokens, song, n) : parseBar(tokens, song, pattern!, n));
       });
       return;
     }
@@ -98,17 +102,39 @@ export function parseSong(text: string): Song {
   return song;
 }
 
+function repeatBar(song: Song, n: number): Bar {
+  const prev = song.bars.at(-1);
+  if (!prev) throw new SongParseError('"%" needs a previous bar to repeat', n);
+  return prev;
+}
+
 function parseBar(tokens: string[], song: Song, pattern: Stroke[], n: number): Bar {
   if (tokens.length === 1 && tokens[0] === '%') {
-    const prev = song.bars.at(-1);
-    if (!prev) throw new SongParseError('"%" needs a previous bar to repeat', n);
-    return { chords: prev.chords.map((c) => ({ ...c })), pattern };
+    const prev = repeatBar(song, n);
+    // A repeated chord bar takes the current pattern; a note bar stays as is.
+    return prev.notes ? prev : { chords: prev.chords.map((c) => ({ ...c })), pattern };
   }
   for (const t of tokens) {
     if (!CHORD.test(t)) throw new SongParseError(`"${t}" is not a chord name`, n);
   }
   const beats = song.beatsPerBar / tokens.length;
   return { chords: tokens.map((chord) => ({ chord, beats })), pattern };
+}
+
+function parseNoteBar(tokens: string[], song: Song, n: number): Bar {
+  if (tokens.length === 1 && tokens[0] === '%') return repeatBar(song, n);
+  const notes = tokens.map((t) => {
+    if (t === '-') return null;
+    const note = parseNote(t);
+    if (!note) {
+      throw new SongParseError(
+        `"${t}" is not a note (use a name like C or F#3, or string:fret like 5:3)`,
+        n,
+      );
+    }
+    return note;
+  });
+  return { chords: [], pattern: [], notes };
 }
 
 /** One downstroke per beat. */

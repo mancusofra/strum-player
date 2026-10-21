@@ -59,7 +59,27 @@ describe('parseSong', () => {
     expect(chords).toEqual(['F#m', 'Bb', 'Cmaj7', 'G/B']);
   });
 
+  it('reads bars of single notes', () => {
+    const song = parseSong('| G |\nnotes | C - 5:3 F#3 | % |');
+    expect(song.bars[1].chords).toEqual([]);
+    expect(song.bars[1].notes?.map((n) => n && `${n.name}@${n.string}:${n.fret}`)).toEqual([
+      'C@5:3',
+      null,
+      'C@5:3',
+      'F#@4:4',
+    ]);
+    expect(song.bars[2]).toEqual(song.bars[1]);
+  });
+
+  it('keeps the pattern when a chord bar follows notes', () => {
+    const song = parseSong('pattern: DDDD\nnotes | C D |\n| G | % |');
+    expect(song.bars[1].pattern.join('')).toBe('DDDD');
+    expect(song.bars[2]).toEqual(song.bars[1]);
+  });
+
   it.each([
+    ['notes | C H |', 1, 'not a note'],
+    ['notes | 7:2 |', 1, 'not a note'],
     ['| G | H |', 1, 'not a chord'],
     ['| % |', 1, 'previous bar'],
     ['| G || D |', 1, 'empty bar'],

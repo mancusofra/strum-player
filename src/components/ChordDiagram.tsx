@@ -1,7 +1,7 @@
 import { StyleSheet, Text, View } from 'react-native';
 import Svg, { Circle, Line, Rect, Text as SvgText } from 'react-native-svg';
 
-import { findChord } from '@/music/chords';
+import { findChord, type ChordShape } from '@/music/chords';
 import { layoutChord } from '@/music/diagram';
 import { colors } from '@/theme';
 
@@ -21,12 +21,16 @@ const x = (string: number) => LEFT + string * STRING_GAP;
 const rowY = (row: number) => TOP + (row - 0.5) * FRET_GAP;
 
 interface Props {
-  chord: string;
+  /** Chord name to look up, or `shape` to draw directly. */
+  chord?: string;
+  shape?: ChordShape;
   width?: number;
+  /** Draw × over strings not played (off for a single note). */
+  showMuted?: boolean;
 }
 
-export function ChordDiagram({ chord, width = 120 }: Props) {
-  const shape = findChord(chord);
+export function ChordDiagram({ chord = '', shape: given, width = 120, showMuted = true }: Props) {
+  const shape = given ?? findChord(chord);
   if (!shape) {
     return (
       <View style={[styles.missing, { width, height: width * 1.1 }]}>
@@ -44,7 +48,7 @@ export function ChordDiagram({ chord, width = 120 }: Props) {
       width={width}
       height={(width * viewH) / VIEW_W}
       viewBox={`0 0 ${VIEW_W} ${viewH}`}
-      accessibilityLabel={`${chord} chord diagram`}>
+      accessibilityLabel={chord ? `${chord} chord diagram` : 'Fretboard diagram'}>
       {/* Frets */}
       {Array.from({ length: rows + 1 }, (_, i) => (
         <Line
@@ -94,7 +98,7 @@ export function ChordDiagram({ chord, width = 120 }: Props) {
             strokeWidth={1.2}
             fill="none"
           />
-        ) : state === 'muted' ? (
+        ) : state === 'muted' && showMuted ? (
           <SvgText
             key={`m${s}`}
             x={x(s)}
